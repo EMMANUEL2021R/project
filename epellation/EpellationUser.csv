@@ -1,0 +1,6 @@
+id, lastName, firstName, userName, password, email, phoneNumber, role, schoolLevel
+4, Soh, Emma, Soh-E, Toronto12, soh.e@yahoo.com, 655443322, STUDENT, 3
+5, Mba, Joel, Mba-J, Toronto12, mba.j@yahoo.com, 644332211, STUDENT, 4
+6, Apo, Joas, Apo-J, Toronto12, apo.j@yahoo.com, 677332211, STUDENT, 5
+7, King, George, King-G, Toronto12, king.g@yahoo.com, 688332211, STUDENT, 6
+8, Fongang, Hugor, Hugor-F, Succes10#, hugor.f@yahoo.com, 698858087, STUDENT, 7

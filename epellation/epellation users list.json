@@ -1,0 +1,73 @@
+[
+
+    {
+        "lastName": "Lea",
+      
+      "firstName": "Mba",
+      
+      "userName": "leaMba2",
+      
+      "password": "lea1234",
+      
+      "email": "leo@g@g.com",
+      
+      "phoneNumber": "12356",
+      
+      "role": "STUDENT",
+      
+      "schoolLevel": 5
+      },
+
+      {
+        "lastName": "Warren",
+      
+      "firstName": "Buffett",
+      
+      "userName": "Warren B.",
+      
+      "password": "wb30.08.1930",
+      
+      "email": "wbuffet@yahoo.us",
+      
+      "phoneNumber": "6262276",
+      
+      "role": "STUDENT",
+      
+      "schoolLevel": 6
+      },
+
+      {
+        "lastName": "Jeff",
+      
+      "firstName": "Bezos",
+      
+      "userName": "Jeff B.",
+      
+      "password": "jb12.01.1964",
+      
+      "email": "jeffbezos@yahoo.com",
+      
+      "phoneNumber": "6849304",
+      
+      "role": "ADMIN"
+      },
+
+      {
+        "lastName": "Elon",
+      
+      "firstName": "Musk",
+      
+      "userName": "MuskElon",
+      
+      "password": "musK28.06.1971",
+      
+      "email": "muskelon@gmail.com",
+      
+      "phoneNumber": "970314",
+      
+      "role": "STUDENT",
+      
+      "schoolLevel": 7
+      }
+
+]

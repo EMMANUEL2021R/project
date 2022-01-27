@@ -1,0 +1,83 @@
+[
+    {
+        "word":"Constitution",
+        "inPhrase":"The citizens are submitted to the Constitution of their home country",
+        "definition":"a body of fundamental principles or established precedents according to which a state or other organization is acknowledged to be governed.",
+        "levels":[
+            {"grade":1, "dificulty":"LOW"},
+            {"grade":2, "dificulty":"HIGHT"}
+        ]
+    },
+    {
+        "word":"Citizen",
+        "inPhrase":"The citizens are submitted to the Constitution of their home country",
+        "definition":"a body of fundamental principles or established precedents according to which a state or other organization is acknowledged to be governed.",
+        "levels":[
+            {"grade":1, "dificulty":"HIGHT"},
+            {"grade":3, "dificulty":"MEDIUM"}
+        ]
+    },
+    {
+        "word":"Bright",
+        "inPhrase":"The citizens are submitted to the Constitution of their home country",
+        "definition":"a body of fundamental principles or established precedents according to which a state or other organization is acknowledged to be governed.",
+        "levels":[
+            {"grade":2, "dificulty":"LOW"},
+            {"grade":5, "dificulty":"LOW"}
+        ]
+    },
+    {
+        "word":"Strong",
+        "inPhrase":"The citizens are submitted to the Constitution of their home country",
+        "definition":"a body of fundamental principles or established precedents according to which a state or other organization is acknowledged to be governed.",
+        "levels":[
+            {"grade":4, "dificulty":"HIGHT"},
+            {"grade":6, "dificulty":"MEDIUM"}
+        ]
+    },
+    {
+        "word":"Magesty",
+        "inPhrase":"The citizens are submitted to the Constitution of their home country",
+        "definition":"a body of fundamental principles or established precedents according to which a state or other organization is acknowledged to be governed.",
+        "levels":[
+            {"grade":7, "dificulty":"LOW"},
+            {"grade":2, "dificulty":"MEDIUM"}
+        ]
+    },
+    {
+        "word":"Slogan",
+        "inPhrase":"The citizens are submitted to the Constitution of their home country",
+        "definition":"a body of fundamental principles or established precedents according to which a state or other organization is acknowledged to be governed.",
+        "levels":[
+            {"grade":8, "dificulty":"HIGHT"},
+            {"grade":9, "dificulty":"HIGHT"}
+        ]
+    },
+    {
+        "word":"Popcorn",
+        "inPhrase":"The citizens are submitted to the Constitution of their home country",
+        "definition":"a body of fundamental principles or established precedents according to which a state or other organization is acknowledged to be governed.",
+        "levels":[
+            {"grade":1, "dificulty":"MEDIUM"},
+            {"grade":9, "dificulty":"LOW"}
+        ]
+    },
+    {
+        "word":"Pink",
+        "inPhrase":"The citizens are submitted to the Constitution of their home country",
+        "definition":"a body of fundamental principles or established precedents according to which a state or other organization is acknowledged to be governed.",
+        "levels":[
+            {"grade":5, "dificulty":"MEDIUM"},
+            {"grade":4, "dificulty":"LOW"}
+        ]
+    },
+    {
+        "word":"Parabolla",
+        "inPhrase":"The citizens are submitted to the Constitution of their home country",
+        "definition":"a body of fundamental principles or established precedents according to which a state or other organization is acknowledged to be governed.",
+        "levels":[
+            {"grade":9, "dificulty":"LOW"},
+            {"grade":5, "dificulty":"HIGHT"}
+        ]
+    }
+]

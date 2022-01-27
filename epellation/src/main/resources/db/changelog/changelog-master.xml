@@ -1,0 +1,19 @@
+<databaseChangeLog
+        xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xmlns:ext="http://www.liquibase.org/xml/ns/dbchangelog-ext"
+        xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.1.xsd
+    http://www.liquibase.org/xml/ns/dbchangelog-ext http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-ext.xsd">
+    
+     <include file="/db/changelog/changes/20211031111700-add-entity-SpellingWord.xml"/>
+     <include file="/db/changelog/changes/20211031114200-add-entity-level.xml"/>
+     <include file="/db/changelog/changes/20211031120500-load-data-level.xml"/>
+     <include file="/db/changelog/changes/20211031123300-add-entity-EpellationUser.xml"/>
+     <include file="/db/changelog/changes/20211031124100-add-entity-SpellingSession.xml"/>
+     <include file="/db/changelog/changes/20211112101800-add-entity-SpellingWordLevel.xml"/>
+     <include file="/db/changelog/changes/20211112103600-add-entity-SpellingSessionItem.xml"/>
+    
+   
+    <!-- <include file="/db/changelog/changes/20211031111700-add-entity-SpellingWord.xml"/>  -->
+
+</databaseChangeLog>

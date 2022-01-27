@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<databaseChangeLog
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xmlns:ext="http://www.liquibase.org/xml/ns/dbchangelog-ext"
+        xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+        xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.1.xsd
+    http://www.liquibase.org/xml/ns/dbchangelog-ext http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-ext.xsd">
+    
+    
+    
+    <changeSet  author="raymond2"  id="20211031120500-1">
+    
+        <loadUpdateData  
+                         primaryKey="id"
+                         encoding="UTF-8"
+                         file="/db/changelog/changes/data/20211031120000-load-data-level.csv"
+                         quotchar="'"
+                         separator=","
+                         tableName="level">
+            <column name="id" type="numeric"/>
+            <column name="number" type="numeric"/>
+            <column name="grade" type="string"/>
+            <column name="description" type="string"/>
+        </loadUpdateData>
+    </changeSet>
+  
+  </databaseChangeLog>

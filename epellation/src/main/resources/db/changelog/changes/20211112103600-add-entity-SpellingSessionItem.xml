@@ -1,0 +1,57 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<databaseChangeLog
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xmlns:ext="http://www.liquibase.org/xml/ns/dbchangelog-ext"
+        xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+        xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.1.xsd
+    http://www.liquibase.org/xml/ns/dbchangelog-ext http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-ext.xsd">
+    
+    
+    
+    <changeSet  author="raymond"  id="20211112103600-1">
+		<createTable tableName="spelling_session_item">
+            <column name="id" type="bigint" autoIncrement="true">
+                <constraints primaryKey="true" nullable="false"/>
+            </column>
+            <column name="spelling_session_id" type="bigint">
+                <constraints nullable="false" />
+            </column>
+            <column name="spelling_word_id" type="bigint">
+                <constraints nullable="false" />
+            </column>
+            <column name="response" type="varchar(255)">
+                <constraints nullable="true" />
+            </column>
+            <column name="created_date" type="timestamp">
+                <constraints nullable="false" />
+            </column>
+             <column name="updated_date" type="timestamp">
+                <constraints nullable="false" />
+            </column>
+	
+        </createTable>
+  </changeSet>
+  
+  
+     <changeSet  author="raymond"  id="20211112103600-2">
+	   
+        <addForeignKeyConstraint baseColumnNames="spelling_session_id"
+                                 baseTableName="spelling_session_item"
+                                 constraintName="fk_spelling_session_spelling_session_item_id"
+                                 referencedColumnNames="id"
+                                 referencedTableName="spelling_session"/>
+    </changeSet>
+    
+    	
+	   <changeSet  author="raymond"  id="20211112103600-3">
+	   
+        <addForeignKeyConstraint baseColumnNames="spelling_word_id"
+                                 baseTableName="spelling_session_item"
+                                 constraintName="k_spelling_word_spelling_session_item_id"
+                                 referencedColumnNames="id"
+                                 referencedTableName="spelling_word"/>
+    </changeSet>
+
+
+    
+  </databaseChangeLog>

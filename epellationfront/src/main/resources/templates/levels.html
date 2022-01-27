@@ -1,0 +1,14 @@
+<html xmlns:th="http://www.thymeleaf.org">
+<header></header>
+<body>
+<table>
+<tr th:each="level: ${levels}">
+    <td th:text="${level.id}" />
+    <td th:text="${level.description}" />
+    <td th:text="${level.grade}" />
+    <td th:text="${level.number}" />
+</tr>
+</table>
+
+</body>
+</html>

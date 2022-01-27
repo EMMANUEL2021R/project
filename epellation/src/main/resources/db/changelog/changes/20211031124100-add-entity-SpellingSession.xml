@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<databaseChangeLog
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xmlns:ext="http://www.liquibase.org/xml/ns/dbchangelog-ext"
+        xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+        xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.1.xsd
+    http://www.liquibase.org/xml/ns/dbchangelog-ext http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-ext.xsd">
+    
+    
+    
+    <changeSet  author="raymond2"  id="20211031124100-1">
+		<createTable tableName="spelling_session">
+		            <column name="id" type="bigint" autoIncrement="true">
+		                <constraints primaryKey="true" nullable="false"/>
+		            </column>
+		            <column name="epellation_user_id" type="bigint">
+		                <constraints nullable="true" />
+		            </column>
+		                 <column name="created_date" type="timestamp">
+		                <constraints nullable="true" />
+		            </column>
+		               
+        </createTable>
+	</changeSet>
+	
+	
+	   <changeSet  author="raymond2"  id="20211031124100-2">
+	   
+        <addForeignKeyConstraint baseColumnNames="epellation_user_id"
+                                 baseTableName="spelling_session"
+                                 constraintName="fk_spelling_session_apellation_user_id"
+                                 referencedColumnNames="id"
+                                 referencedTableName="epellation_user"/>
+    </changeSet>
+
+    
+  </databaseChangeLog>
+  
