@@ -7,7 +7,7 @@ import org.springframework.boot.test.context.SpringBootTest;
 class GestionDeStockApplicationTests {
 
 	@Test
-	void contextLoads() {
+	void contextLoads() {// TO DO
 	}
 
 }
