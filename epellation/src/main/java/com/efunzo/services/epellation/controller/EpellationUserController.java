@@ -4,6 +4,8 @@ import java.io.IOException;
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
@@ -25,7 +27,9 @@ import com.efunzo.services.epellation.model.response.LoginResponse;
 import com.efunzo.services.epellation.service.EpellationUserService;
 import com.efunzo.services.epellation.service.dto.EpellationUserDTO;
 
-import javassist.NotFoundException;
+import io.swagger.annotations.ApiOperation;
+import io.swagger.annotations.ApiResponse;
+import io.swagger.annotations.ApiResponses;
 
 @Controller
 public class EpellationUserController {
@@ -33,16 +37,22 @@ public class EpellationUserController {
 	@Autowired
 	EpellationUserService epellationUserService;
 
+	
 	 @GetMapping("/api/words/user/{user}/level/{level}/grade/{grade}")
+	@ApiOperation(value = "demander une session",notes = "demander une session",response = EpellationUserResponse.class)
+	@ApiResponses(value = {
+			@ApiResponse(code = 200, message="L'objet EpellationUser a ete cree/modifie")
+	})
 	public ResponseEntity<EpellationSessionResponse> getWords(@PathVariable(name="level") Integer level, @PathVariable(name="grade") String grade, @PathVariable(name="user") Long user ){
 		
 		EpellationSessionResponse epellationSessionResponse = epellationUserService.getWords(level, grade, user);
+		
 		return ResponseEntity.status(HttpStatus.OK).body(epellationSessionResponse);
 	}
 
 	
 	@PostMapping("/api/epellation/login")
-	public ResponseEntity<LoginResponse> loadUser(@RequestBody LoginRequest loginRequest) throws NotFoundException{
+	public ResponseEntity<LoginResponse> loadUser(@RequestBody LoginRequest loginRequest) {
 		
 		LoginResponse user = epellationUserService.loadUser(loginRequest);
 		return ResponseEntity.status(HttpStatus.OK).body(user);
@@ -50,6 +60,11 @@ public class EpellationUserController {
 	
 	
 	@PostMapping("/api/epellation/user")
+	@ApiOperation(value = "Enregistrer un EpellationUser",notes = "cette methode permet d'Enregistrer ou modifier un EpellationUser",response = EpellationUserResponse.class)
+	@ApiResponses(value = {
+			@ApiResponse(code = 200, message="L'objet EpellationUser a ete cree/modifie"),
+			@ApiResponse(code = 1001, message="L'objet EpellationUser n'est pas valide")
+	})
 	public ResponseEntity<EpellationUserResponse> registerUser(@RequestBody EpellationUserRequest epellationUserRequest){
 		
 		EpellationUserResponse registerUser = epellationUserService.registerUser(epellationUserRequest);
@@ -58,7 +73,13 @@ public class EpellationUserController {
 	
 
 	@PutMapping("/api/epellation/user")
-	public ResponseEntity<EpellationUserDTO> updatesepellationUsert(@RequestBody EpellationUserDTO epellationUser){
+	@PostMapping("/api/epellation/user")
+	@ApiOperation(value = "Update  un EpellationUser",notes = "cette methode permet  modifier un EpellationUser",response = EpellationUserDTO.class)
+	@ApiResponses(value = {
+			@ApiResponse(code = 200, message="L'objet EpellationUser a ete modifie"),
+			@ApiResponse(code = 1001, message="L'objet EpellationUser n'est pas valide")
+	})
+public ResponseEntity<EpellationUserDTO> updatesepellationUsert(@RequestBody EpellationUserDTO epellationUser){
 		
 		EpellationUserDTO addedepellationUser = epellationUserService.updateEpellationUser(epellationUser);
 		
@@ -93,7 +114,12 @@ public class EpellationUserController {
 	 
 
 	 @GetMapping("/api/epellation/user/{identifier}")
-		public ResponseEntity<EpellationUserDTO> findepellationUserByName_Id(@PathVariable(name="identifier") String identifier){
+		@ApiOperation(value = "Rechercher un EpellationUser",notes = "cette methode permet de Rechercher un EpellationUser par son ID/UserName",response = EpellationUser.class)
+		@ApiResponses(value = {
+				@ApiResponse(code = 200, message="L'objet EpellationUser a ete trouve dans la base de donnees"),
+				@ApiResponse(code = 1000, message="aucun EpellationUser dans la base de donnees avec le ID/UserName donnee.")
+		})
+	 		public ResponseEntity<EpellationUserDTO> findepellationUserByName_Id(@PathVariable(name="identifier") String identifier){
 
 			EpellationUserDTO epellationUser = epellationUserService.findEpellationUserByUserName_Id(identifier);
 			
@@ -116,5 +142,13 @@ public class EpellationUserController {
 		 List<EpellationUserResponse> epellationUserResponses = epellationUserService.saveJsonEpellationUserData(file);
 		 return ResponseEntity.status(HttpStatus.OK).body(epellationUserResponses);
 	 }
+	 
+	@GetMapping("/api/epellation/user/page")
+	public ResponseEntity<Page<EpellationUserDTO>> findAllepellationUser(Pageable pageable){
+		
+		Page<EpellationUserDTO> epellationUsers = epellationUserService.findAll(pageable);
+		
+		return ResponseEntity.status(HttpStatus.OK).body(epellationUsers);
+	}
 
 }

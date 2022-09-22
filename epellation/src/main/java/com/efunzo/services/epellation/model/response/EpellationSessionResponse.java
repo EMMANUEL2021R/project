@@ -6,6 +6,17 @@ import com.efunzo.services.epellation.service.dto.SpellingWordDTO;
 
 public class EpellationSessionResponse {
 	
+	private Long SessionId;
+	
+
+	public Long getSessionId() {
+		return SessionId;
+	}
+
+	public void setSessionId(Long sessionId) {
+		SessionId = sessionId;
+	}
+
 	private List<SpellingWordDTO> spellingWords;
 
 	public List<SpellingWordDTO> getSpellingWords() {

@@ -4,6 +4,8 @@ import com.efunzo.services.epellation.domaine.Role;
 
 public class LoginResponse {
 	
+	private long userId;
+	
     private String lastName;
 	
 	private String firstName;
@@ -17,6 +19,8 @@ public class LoginResponse {
 	private Integer schoolLevel;
 	
 	private Role role;
+	
+	private String jwtToken;
 
 	public String getLastName() {
 		return lastName;
@@ -73,9 +77,26 @@ public class LoginResponse {
 	public void setRole(Role role) {
 		this.role = role;
 	}
-	
-	
-	
+
+	public long getUserId() {
+		return userId;
+	}
+
+	public void setUserId(long userId) {
+		this.userId = userId;
+	}
+
+	public String getJwtToken() {
+		return jwtToken;
+	}
+
+	public void setJwtToken(String jwtToken) {
+		this.jwtToken = jwtToken;
+	}
+
+	public void setSchoolLevel(Integer schoolLevel) {
+		this.schoolLevel = schoolLevel;
+	}
 	
 
 }

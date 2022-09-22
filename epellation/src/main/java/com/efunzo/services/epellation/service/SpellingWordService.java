@@ -1,19 +1,26 @@
 package com.efunzo.services.epellation.service;
 
+
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
+
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
+
 import com.efunzo.services.epellation.domaine.GradeType;
 import com.efunzo.services.epellation.domaine.Level;
 import com.efunzo.services.epellation.domaine.SpellingWord;
+import com.efunzo.services.epellation.model.request.AddLevelRequest;
 import com.efunzo.services.epellation.model.request.AddSpellingWordDataRequest;
 import com.efunzo.services.epellation.model.request.AddWordRequest;
 import com.efunzo.services.epellation.model.response.AddWordResponse;
@@ -22,11 +29,25 @@ import com.efunzo.services.epellation.service.dto.LevelDTO;
 import com.efunzo.services.epellation.service.dto.SpellingWordDTO;
 import com.efunzo.services.epellation.service.mapper.LevelMapper;
 import com.efunzo.services.epellation.service.mapper.SpellingWordMapper;
+import com.fasterxml.jackson.core.type.TypeReference;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.ObjectReader;
 import com.fasterxml.jackson.dataformat.csv.CsvMapper;
 import com.fasterxml.jackson.dataformat.csv.CsvSchema;
-import com.fasterxml.jackson.core.type.TypeReference;
-import com.fasterxml.jackson.databind.ObjectMapper;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.stereotype.Service;
+import org.springframework.web.multipart.MultipartFile;
+
+import java.io.IOException;
+import java.io.InputStream;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Optional;
+import java.util.stream.Collectors;
 
 @Service
 public class SpellingWordService {
@@ -217,13 +238,13 @@ private final Logger log = LoggerFactory.getLogger(SpellingWordService.class);
 	}
 
 	public List<SpellingWordDTO> inputSpellingWordDataJson(MultipartFile file) {
-		
+
 		List<SpellingWordDTO> addSpellingWord = new ArrayList<>();
-		
+
 		ObjectMapper mapper = new ObjectMapper();
-		
-		TypeReference<List<SpellingWordDTO>> typeReference = new TypeReference<List<SpellingWordDTO>>(){};
-		
+
+		TypeReference<List<AddSpellingWordDataRequest>> typeReference = new TypeReference<List<AddSpellingWordDataRequest>>(){};
+
 		InputStream inputStream = null;
 		try {
 			inputStream = file.getInputStream();
@@ -232,19 +253,52 @@ private final Logger log = LoggerFactory.getLogger(SpellingWordService.class);
 			e1.printStackTrace();
 		}
 		try {
-			List<SpellingWordDTO> spellingWords = mapper.readValue(inputStream,typeReference);
-			
-			addSpellingWord = addManySpellingWord(spellingWords);
-			
+			List<AddSpellingWordDataRequest> spellingWords = mapper.readValue(inputStream,typeReference);
+
+			List<SpellingWordDTO> spellingWordDTOs  = new ArrayList<>();
+
+			for (AddSpellingWordDataRequest spellingWord : spellingWords) {
+
+				SpellingWordDTO  spellingWordDTO = new SpellingWordDTO();
+				spellingWordDTO.setDefinition(spellingWord.getDefinition());
+				spellingWordDTO.setInPhrase(spellingWord.getInPhrase());
+				spellingWordDTO.setWord(spellingWord.getWord());
+
+				List<LevelDTO> levels = new ArrayList<>();
+
+				spellingWordDTO.setLevels(levels);
+
+				if(spellingWord.getFromJsonLevels()!= null) {
+
+					for (AddLevelRequest addLevelRequest : spellingWord.getFromJsonLevels()) {
+
+						GradeType grade = addLevelRequest.getDificulty();
+						int number  = addLevelRequest.getGrade();
+
+						LevelDTO levelDTO =  levelService.findlevelwhithnumberGrade(number, grade);
+						if (levelDTO!= null) {
+
+							levels.add(levelDTO) ;
+						}
+					}
+
+				}
+
+				spellingWordDTOs.add(spellingWordDTO);
+			}
+
+			addSpellingWord = addManySpellingWord(spellingWordDTOs);
+
 			return addSpellingWord;
-			
+
 		} catch (IOException e){
 			System.out.println("Unable to save users: " + e.getMessage());
 		}
 		return null;
-		
+
 	}
-	
+
+
 	public List<SpellingWordDTO> addSpellingWordDataCsv(List<AddSpellingWordDataRequest> addSpellingWordDataRequests) {
 
 		List<SpellingWordDTO> listWords = new ArrayList<>();
@@ -290,7 +344,15 @@ private final Logger log = LoggerFactory.getLogger(SpellingWordService.class);
 	  CsvSchema schema = mapper.schemaFor(AddSpellingWordDataRequest.class).withHeader().withColumnReordering(true);
 	    ObjectReader reader =  mapper.readerFor(AddSpellingWordDataRequest.class).with(schema);
 	        
-	        addSpellingWord = addSpellingWordDataCsv(reader.<AddSpellingWordDataRequest>readValues(fileInput.getInputStream()).readAll());
+	        addSpellingWord = addSpellingWordDataCsv(
+	        		
+	        		reader.<AddSpellingWordDataRequest>readValues(
+	        				fileInput.getInputStream()
+	        				
+	        				).readAll()
+	        		
+	        		
+	        		);
 	      
 			return addSpellingWord;
 	        }
@@ -311,6 +373,32 @@ private final Logger log = LoggerFactory.getLogger(SpellingWordService.class);
 		}else
 			return null ;
 						
-		}	
+		}
+
+	public Page<SpellingWordDTO> findAll(Pageable pageable) {
+
+		return spellingWordRepository.findAll(pageable)
+			.map(spellingWordMapper::toDto);
+	}
+	
+	private GradeType getGradeType(String c) {
+		
+		if(c.equalsIgnoreCase("HIGHT")) {
+			
+			return GradeType.HIGHT ;
+		}else
+			if(c.equalsIgnoreCase("MEDIUM")) {
+				
+				return GradeType.MEDIUM ;
+		}else
+			if(c.equalsIgnoreCase("LOW")) {
+				
+				return GradeType.LOW ;
+		}else
+			return null ;
+						
+		}
+	
+	
 	}
 		
