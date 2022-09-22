@@ -6,6 +6,16 @@ import com.efunzo.services.epellation.domaine.SpellingWord;
 
 public class OldSessionResponse {
 	
+	private Long sessionId;
+	
+	public Long getSessionId() {
+		return sessionId;
+	}
+
+	public void setSessionId(Long sessionId) {
+		this.sessionId = sessionId;
+	}
+
 	private List<SpellingWord> spellingWords;
 
 	public List<SpellingWord> getSpellingWords() {

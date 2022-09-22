@@ -1,27 +1,36 @@
 package com.efunzo.services.epellation.service;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Optional;
-import java.time.Instant;
-import java.util.stream.Collectors;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Service;
 import com.efunzo.services.epellation.domaine.SpellingSession;
 import com.efunzo.services.epellation.domaine.SpellingSessionItem;
+import com.efunzo.services.epellation.domaine.SpellingWord;
+import com.efunzo.services.epellation.model.response.OldSessionResponse;
+import com.efunzo.services.epellation.model.response.SpellingSessionItemResponse;
 import com.efunzo.services.epellation.model.response.SpellingSessionResponse;
-import com.efunzo.services.epellation.service.EpellationUserService;
+import com.efunzo.services.epellation.repository.SpellingSessionItemRepository;
+import com.efunzo.services.epellation.repository.SpellingSessionRepository;
 import com.efunzo.services.epellation.service.dto.SpellingSessionDTO;
 import com.efunzo.services.epellation.service.dto.SpellingSessionItemDTO;
 import com.efunzo.services.epellation.service.mapper.SpellingSessionItemMapper;
 import com.efunzo.services.epellation.service.mapper.SpellingSessionMapper;
 import com.efunzo.services.epellation.service.mapper.SpellingWordMapper;
+
 import com.efunzo.services.epellation.domaine.SpellingWord;
 import com.efunzo.services.epellation.model.response.OldSessionResponse;
+import com.efunzo.services.epellation.model.response.SpellingSessionItemResponse;
 import com.efunzo.services.epellation.repository.SpellingSessionItemRepository;
 import com.efunzo.services.epellation.repository.SpellingSessionRepository;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+
+import java.time.Instant;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Optional;
+import java.util.stream.Collectors;
+
 
 
 @Service
@@ -95,11 +104,18 @@ private final Logger log = LoggerFactory.getLogger(SpellingSessionService.class)
 		
 		if(allSpellingSessions.size() > 0) {
 			for(SpellingSession spellingSession : allSpellingSessions ) {
+
 				SpellingSessionResponse response = new SpellingSessionResponse();
 				response.setDate(spellingSession.getCreatedDade());
 				response.setSpellingSessionId(spellingSession.getId());
-				response.setSpellingSessionItemResponses(spellingSessionItemService.findSpellingSessionItemBySpellingSession_Id(spellingSession.getId()));
+
 				
+				List<SpellingSessionItemResponse>  responses = spellingSessionItemService.findSpellingSessionItemBySpellingSession_Id(spellingSession.getId());
+				
+				response.setSpellingSessionItemResponses(responses);
+				response.setScore(calculateScore(responses));
+
+
 				allSpellingSessionResponses.add(response);
 			}
 		}
@@ -108,7 +124,7 @@ private final Logger log = LoggerFactory.getLogger(SpellingSessionService.class)
 	}
 	
 	
-	public OldSessionResponse getAnOldSession (Long sessionId, Long userId) {
+public OldSessionResponse getAnOldSession (Long sessionId, Long userId) {
 		
 		OldSessionResponse oldSessionResponse = new OldSessionResponse();
 		
@@ -122,11 +138,49 @@ private final Logger log = LoggerFactory.getLogger(SpellingSessionService.class)
 			
 			log.info("Getted old Spelling Sesson {} ===> ", oldSessionResponse );
 			
-			epellationUserService.createSpellingSession(userId, spellingWordMapper.toDto(words));
+			SpellingSessionDTO spellingSession = epellationUserService.createSpellingSession(userId, spellingWordMapper.toDto(words));
+			
+			oldSessionResponse.setSessionId(spellingSession.getId());
 			
 			return oldSessionResponse;
 	}
+
+ public SpellingSessionResponse getSpellingSessionResult(Long sessionId) {
+	 
+	 
+	 Optional<SpellingSession> seOptional = spellingSessionRepository.findById(sessionId);
+	 SpellingSessionResponse sessionResponse = new SpellingSessionResponse();
+	 
+	 if(seOptional.isPresent()) {
+		 
+		List<SpellingSessionItemResponse>  responses = spellingSessionItemService.findSpellingSessionItemBySpellingSession_Id(sessionId);
+		
+		sessionResponse.setDate(seOptional.get().getCreatedDade());
+		sessionResponse.setSpellingSessionId(sessionId);
+		sessionResponse.setSpellingSessionItemResponses(responses);
+		sessionResponse.setScore(calculateScore(responses));
+		
+	 }
 	
+	return sessionResponse;
+}
+	
+	
+private String calculateScore(List<SpellingSessionItemResponse> spellingSessionItemResponses) {
+	
+	double total = spellingSessionItemResponses.size();
+	double correct = 0.0;
+	
+	for (SpellingSessionItemResponse sessionItemResponse: spellingSessionItemResponses) {
+		
+		if(sessionItemResponse.getWord().equalsIgnoreCase(sessionItemResponse.getResponse())) {
+			
+			correct = correct + 1;
+		}
+	}
+	
+	return total!=0.0?( (correct / total) * 100) +"%": "0.0%";
+}
 
 }
 

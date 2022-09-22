@@ -9,6 +9,8 @@ import java.util.Optional;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -212,6 +214,15 @@ private final Logger log = LoggerFactory.getLogger(LevelService.class);
 		}
 		
 		return null;
+	}
+
+	public Page<LevelDTO> findPage(Pageable pageable) {
+		
+		Page<Level>  allLevels = levelRepository.findAll(pageable);
+		
+		log.info("Retrived levels {} ===> ", allLevels );;
+		
+		return allLevels.map(levelMapper::toDto);
 	}
 		
 

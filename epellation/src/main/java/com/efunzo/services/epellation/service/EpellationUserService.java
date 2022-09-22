@@ -1,7 +1,6 @@
 package com.efunzo.services.epellation.service;
 
 import java.io.IOException;
-import java.io.InputStream;
 import java.time.Instant;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -14,15 +13,15 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
+
 import com.efunzo.services.epellation.domaine.EpellationUser;
 import com.efunzo.services.epellation.domaine.GradeType;
 import com.efunzo.services.epellation.domaine.Role;
-import com.efunzo.services.epellation.domaine.SpellingSession;
-import com.efunzo.services.epellation.domaine.SpellingSessionItem;
-import com.efunzo.services.epellation.domaine.SpellingWord;
 import com.efunzo.services.epellation.model.request.EpellationUserRequest;
 import com.efunzo.services.epellation.model.request.LoginRequest;
 import com.efunzo.services.epellation.model.response.EpellationSessionResponse;
@@ -34,12 +33,28 @@ import com.efunzo.services.epellation.service.dto.SpellingSessionDTO;
 import com.efunzo.services.epellation.service.dto.SpellingSessionItemDTO;
 import com.efunzo.services.epellation.service.dto.SpellingWordDTO;
 import com.efunzo.services.epellation.service.mapper.EpellationUserMapper;
+import com.fasterxml.jackson.core.type.TypeReference;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.ObjectReader;
 import com.fasterxml.jackson.dataformat.csv.CsvMapper;
 import com.fasterxml.jackson.dataformat.csv.CsvSchema;
-import com.fasterxml.jackson.core.type.TypeReference;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import javassist.NotFoundException;
+import org.apache.commons.lang3.math.NumberUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.stereotype.Service;
+import org.springframework.web.multipart.MultipartFile;
+
+import java.io.IOException;
+import java.time.Instant;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
+import java.util.Optional;
+import java.util.stream.Collectors;
 
 @Service
 public class EpellationUserService {
@@ -65,8 +80,8 @@ public class EpellationUserService {
 	private EpellationUserMapper epellationUserMapper;
 	 
 
-	 public LoginResponse loadUser(LoginRequest loginRequest) throws NotFoundException {
-		 
+	 
+	public LoginResponse loadUser(LoginRequest loginRequest)  {
 		Optional<EpellationUser> user = epellationUserRepository.findEpellationUserByUserNameAndPassword(loginRequest.getUserName(), loginRequest.getPassword());
 		LoginResponse loginResponse = new LoginResponse();
 		
@@ -81,10 +96,8 @@ public class EpellationUserService {
 			loginResponse.setEmail(loadUser.getEmail());
 			loginResponse.setRole(loadUser.getRole());
 			
-			return loginResponse;
-		}else {
-			throw new NotFoundException("User not found any authentication of your details");
-		}
+		}	return loginResponse;
+		
 	 }
 	 
 	
@@ -92,11 +105,13 @@ public class EpellationUserService {
 		
 		EpellationUser epellationUser = new EpellationUser();
 		
+		BCryptPasswordEncoder passwordEncoder = new BCryptPasswordEncoder();
+		
 		epellationUser.setLastName(epellationUserRequest.getLastName());
 		epellationUser.setFirstName(epellationUserRequest.getFirstName());
 		epellationUser.setUserName(epellationUserRequest.getUserName());
 		epellationUser.setEmail(epellationUserRequest.getEmail());
-		epellationUser.setPassword(epellationUserRequest.getPassword());
+		epellationUser.setPassword(passwordEncoder.encode(epellationUserRequest.getPassword()));
 		epellationUser.setPhoneNumber(epellationUserRequest.getPhoneNumber());
 		epellationUser.setRole(epellationUserRequest.getRole());
 		epellationUser.setSchoolLevel(epellationUserRequest.getSchoolLevel());
@@ -115,6 +130,7 @@ public class EpellationUserService {
 		epellationUserResponse.setRole(savedEpellationUser.getRole());
 		epellationUserResponse.setEmail(savedEpellationUser.getEmail());
 		epellationUserResponse.setPassword(savedEpellationUser.getPassword());
+		epellationUserResponse.setId(savedEpellationUser.getId());
 		
 	    if(Role.STUDENT.equals(savedEpellationUser.getRole())) {
 	    	epellationUserResponse.setSchoolLevel(savedEpellationUser.getSchoolLevel());
@@ -212,64 +228,66 @@ public class EpellationUserService {
 		}
 
     
-	public EpellationSessionResponse getWords(Integer level, String grad, Long epellationUser) {
-		
-		EpellationSessionResponse epellationSessionResponse = new EpellationSessionResponse();
-		
-		List<SpellingWordDTO> words =  new ArrayList<>();
-		
-		if(grad.equals("MIXT")) {
+		public EpellationSessionResponse getWords(Integer level, String grad, Long epellationUser) {
 			
-			words = spellingWordService.findSpellingWordByLevels_Number(level);	
+			EpellationSessionResponse epellationSessionResponse = new EpellationSessionResponse();
+			
+			List<SpellingWordDTO> words =  new ArrayList<>();
+			
+			if(grad.equals("MIXT")) {
+				
+				words = spellingWordService.findSpellingWordByLevels_Number(level);	
+				
+				Collections.shuffle(words);
+				
+				List<SpellingWordDTO> choosenWords = words.stream()
+						.limit(numberOfWord)
+						.collect(Collectors.toList());
+				
+				epellationSessionResponse.setSpellingWords(choosenWords);	
+				
+				return epellationSessionResponse;
+			}
+			
+			
+			words = spellingWordService.findSpellingWordByLevelNumber(level, GradeType.valueOf(grad));	
+			
 			
 			Collections.shuffle(words);
 			
 			List<SpellingWordDTO> choosenWords = words.stream()
-					.limit(numberOfWord)
-					.collect(Collectors.toList());
+			   .limit(numberOfWord)
+			   .collect(Collectors.toList());
 			
-			epellationSessionResponse.setSpellingWords(choosenWords);	
+			
+			epellationSessionResponse.setSpellingWords(choosenWords);
+			
+			SpellingSessionDTO spellingSession = createSpellingSession(epellationUser, choosenWords);
+			
+			epellationSessionResponse.setSessionId(spellingSession.getId());
 			
 			return epellationSessionResponse;
 		}
 		
 		
-		words = spellingWordService.findSpellingWordByLevelNumber(level, GradeType.valueOf(grad));	
-		
-		
-		Collections.shuffle(words);
-		
-		List<SpellingWordDTO> choosenWords = words.stream()
-		   .limit(numberOfWord)
-		   .collect(Collectors.toList());
-		
-		
-		epellationSessionResponse.setSpellingWords(choosenWords);
-		
-		createSpellingSession(epellationUser, choosenWords);
-		
-		return epellationSessionResponse;
-	}
-	
-	
-    public void createSpellingSession (Long userId, List<SpellingWordDTO> spellingWords) {
-    	
-    	EpellationUserDTO epellationUser = findEpellationUserByUserId(userId);
-    	
-		
-		SpellingSessionDTO savedSpellingSession = spellingSessionService.addSpellingSession(new SpellingSessionDTO(epellationUser, Instant.now()));
-		
-		for(SpellingWordDTO word:spellingWords) {
+	    public SpellingSessionDTO createSpellingSession (Long userId, List<SpellingWordDTO> spellingWords) {
+	    	
+	    	EpellationUserDTO epellationUser = findEpellationUserByUserId(userId);
+	    	
 			
-			SpellingSessionItemDTO savedSpellingSessionItem = new SpellingSessionItemDTO(word, Instant.now(), Instant.now()); 
+			SpellingSessionDTO savedSpellingSession = spellingSessionService.addSpellingSession(new SpellingSessionDTO(epellationUser, Instant.now()));
 			
-			savedSpellingSessionItem.setSpellingSession(savedSpellingSession);
-			
-			spellingSessionItemService.addSpellingSessionItem(savedSpellingSessionItem);
+			for(SpellingWordDTO word:spellingWords) {
+				
+				SpellingSessionItemDTO savedSpellingSessionItem = new SpellingSessionItemDTO(word, Instant.now(), Instant.now()); 
+				
+				savedSpellingSessionItem.setSpellingSession(savedSpellingSession);
+				
+				spellingSessionItemService.addSpellingSessionItem(savedSpellingSessionItem);
+			}
+			return savedSpellingSession;
 		}
-	}
 
-	
 	
 	public List<EpellationUserResponse> saveEpellationUserData(List<EpellationUserRequest> epellationUserRequests) {
 
@@ -340,8 +358,36 @@ public class EpellationUserService {
 		return epellationUserMapper.toDto(epellationUsers);
 	}
 
+
+	public Page<EpellationUserDTO> findAll(Pageable pageable) {
+		
+		Page<EpellationUser> epellationUserPage = epellationUserRepository.findAll(pageable);
+		
+		log.info("Retrived levels {} ===> ", epellationUserPage );
+		
+		return epellationUserPage.map(epellationUserMapper::toDto);
+	}
 	
 	
+	public LoginResponse findByUserName(LoginRequest loginRequest)  {
+		Optional<EpellationUser> user = epellationUserRepository.findEpellationUserByUserName(loginRequest.getUserName());
+		LoginResponse loginResponse = new LoginResponse();
+		
+		EpellationUser loadUser;
+		if(user.isPresent()) {
+			loadUser =  user.get();
+			loginResponse.setFirstName(loadUser.getFirstName());
+			loginResponse.setLastName(loadUser.getLastName());
+			loginResponse.setUserName(loadUser.getUserName());
+			loginResponse.setSchoolLevel(loadUser.getSchoolLevel());
+			loginResponse.setPhoneNumber(loadUser.getPhoneNumber());
+			loginResponse.setEmail(loadUser.getEmail());
+			loginResponse.setRole(loadUser.getRole());
+			
+		}	return loginResponse;
+		
+	 }
+
 }
 
 
